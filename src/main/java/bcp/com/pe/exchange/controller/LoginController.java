@@ -18,19 +18,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1")
+@RequestMapping("/v1/api")
 public class LoginController {
 
   private final JwtService jwtService;
   private final UserImpl userImpl;
 
-  @GetMapping("/api/generate-token")
+  @GetMapping("/generate-token")
   public Single<LoginResponse> generateToken(@RequestParam("user") String userName,
                                      @RequestParam("password") String password) throws AuthenticationException {
     return jwtService.generateToken(userName, password);
   }
 
-  @PostMapping("/api/user-login")
+  @PostMapping("/user-login")
   public Single<UserReponse> saveUser(@RequestBody UserRequest userRequest) {
     return userImpl.saveUserLogin(userRequest);
   }

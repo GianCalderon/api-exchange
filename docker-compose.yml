@@ -1,0 +1,22 @@
+version: '3.7'
+services:
+  mysql-contenedor:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_PASSWORD=root
+      - MYSQL_DATABASE=bank
+    ports:
+      - "3306:3306"
+    restart: always
+    networks:
+      - my-net
+  api-exchange-conetenedor:
+    image: api-exchange:v1
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - my-net
+networks:
+  my-net:

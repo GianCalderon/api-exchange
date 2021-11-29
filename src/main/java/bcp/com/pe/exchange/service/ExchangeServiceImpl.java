@@ -7,6 +7,7 @@ import bcp.com.pe.exchange.controller.entityexchange.SaveExchangeResponseVO;
 import bcp.com.pe.exchange.exception.model.BadRequestException;
 import bcp.com.pe.exchange.exception.model.BusinessChangeException;
 import bcp.com.pe.exchange.repository.IExchangeRepository;
+import bcp.com.pe.exchange.repository.dto.ExchangeDto;
 import bcp.com.pe.exchange.service.map.MapperService;
 import io.reactivex.Single;
 import java.math.RoundingMode;
@@ -24,8 +25,13 @@ public class ExchangeServiceImpl implements IExchangeService {
 
   @Override
   public Single<ResponseEntity<SaveExchangeResponseVO>> saveExchange(SaveExchangeRequestVO saveExchangeRequestVO) {
-    return Single
-        .just(exchangeRepository.save(mapperService.mapToExchangeDto(validationSaveExchangeRequest(saveExchangeRequestVO))))
+
+    exchangeRepository.findByOriginCurrencyAndDestinyCurrency(
+        saveExchangeRequestVO.getOriginCurrency(),
+        saveExchangeRequestVO.getDestinyCurrency()).ifPresent(ExchangeServiceImpl::isPresent);
+
+    return Single.just(exchangeRepository
+        .save(mapperService.mapToExchangeDto(validationSaveExchangeRequest(saveExchangeRequestVO))))
         .map(data -> ResponseEntity.status(HttpStatus.CREATED).body(mapperService.mapToSaveExchangeResponseVO(data)));
   }
 
@@ -37,7 +43,7 @@ public class ExchangeServiceImpl implements IExchangeService {
       return Single.just(ResponseEntity.status(HttpStatus.OK)
           .body(ExchangeResponseVO.builder()
               .changedAmount(exchange.getRate().multiply(exchangeRequestVo.getOriginAmount())
-                  .setScale(3, RoundingMode.HALF_UP))
+                  .setScale(2, RoundingMode.HALF_UP))
               .currency(exchange.getDestinyCurrency())
               .build()));
     }).orElse(Single.error(new BusinessChangeException("03", "Tipo de cambio no soportado")));
@@ -50,5 +56,10 @@ public class ExchangeServiceImpl implements IExchangeService {
     return saveExchangeRequestVO;
   }
 
-}
+  private static void isPresent(ExchangeDto exchangeDto) {
+    String message = "tipo de cambio de " + exchangeDto.getOriginCurrency() + " a " + exchangeDto.getDestinyCurrency() +
+        " ya existe";
+    throw new BadRequestException("E02", message);
+  }
 
+}

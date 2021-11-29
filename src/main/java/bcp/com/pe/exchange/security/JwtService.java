@@ -21,28 +21,9 @@ import org.springframework.stereotype.Service;
 public class JwtService {
 
   private final IUserRepository iUserRepository;
-  private static final long JWT_DURATION = TimeUnit.SECONDS.toMillis(60);
+  private static final long JWT_DURATION = TimeUnit.SECONDS.toMillis(120);
   private static final String JWT_SIGNATURE_SECRET = "mifirma";
-  private static final String CLAIM_PERMISSIONS = "permits";
-  private static final String CLAIM_USER = "user";
-  private static final String CLAIM_PASSWORD = "password";
   private static final String CLAIM_ROL = "rol";
-
-
-
-  /*
-  public String generateToken(String permisions) {
-
-    Date currentDate = new Date();
-    long endTime = currentDate.getTime() + JWT_DURATION;
-    return Jwts.builder()
-        .setIssuedAt(currentDate)
-        .setExpiration(new Date(endTime))
-        .signWith(SignatureAlgorithm.HS256, JWT_SIGNATURE_SECRET)
-        .claim(CLAIM_PERMISSIONS, permisions)
-        .compact();
-  }
-   */
 
   public Single<LoginResponse> generateToken(String userName, String password) throws AuthenticationException {
 
